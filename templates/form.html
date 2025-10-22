@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title mb-3">{{ mode }} Item</h5>
+    <form method="post" enctype="multipart/form-data" novalidate>
+      <div class="row g-3">
+
+        {% if mode == 'Edit' %}
+        <div class="col-md-3">
+          <label class="form-label">ID</label>
+          <input name="id" class="form-control" type="number" min="1" required
+                 value="{{ (item.id if item else '') }}">
+          <div class="form-text">Changing ID affects the row number/order.</div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-6">
+          <label class="form-label">Name</label>
+          <input name="name" class="form-control" required
+                 value="{{ (item.name if item else '') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Price</label>
+          <input name="price" class="form-control" type="number" step="0.01" min="0" required
+                 value="{{ (item.price if item else '') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Quantity</label>
+          <input name="quantity" class="form-control" type="number" min="0" required
+                 value="{{ (item.quantity if item else '') }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Size</label>
+          <select name="size" class="form-select" required>
+            <option value="" disabled {{ 'selected' if not item or not item.size }}>Choose…</option>
+            {% for s in SIZES %}
+              <option value="{{ s }}" {{ 'selected' if item and item.size==s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Photo (png/jpg/gif, max 8MB)</label>
+          <input type="file" name="photo" class="form-control" accept=".png,.jpg,.jpeg,.gif">
+          {% if item and item.photo %}
+            <div class="form-text mt-2">
+              Current:
+              <img class="thumb" src="{{ url_for('static', filename='uploads/' ~ item.photo) }}" alt="photo">
+            </div>
+            <div class="form-check mt-2">
+              <input class="form-check-input" type="checkbox" id="keep_old_photo" name="keep_old_photo" value="1" checked>
+              <label class="form-check-label" for="keep_old_photo">
+                Keep current photo (uncheck to remove if you don’t upload a new one)
+              </label>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex gap-2">
+        <button class="btn btn-primary" type="submit">{{ mode }}</button>
+        <a class="btn btn-outline-secondary" href="{{ url_for('index') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

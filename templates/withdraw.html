@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Withdraw Items</h5>
+
+    {% if not items %}
+      <p class="text-muted">No items selected. Go to the <a href="{{ url_for('index') }}">inventory</a> and click “Withdraw”.</p>
+    {% else %}
+      <form method="post" action="{{ url_for('withdraw_update') }}">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th style="width:80px;">ID</th>
+                <th style="width:90px;">Photo</th>
+                <th>Name</th>
+                <th style="width:120px;">Size</th>
+                <th style="width:120px;">Price</th>
+                <th style="width:140px;">Withdraw Qty</th>
+                <th style="width:140px;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for it in items %}
+                <tr>
+                  <td>{{ it.row.id }}</td>
+                  <td>
+                    {% if it.row.photo %}
+                      <img class="thumb" src="{{ url_for('static', filename='uploads/' ~ it.row.photo) }}" alt="photo">
+                    {% else %}
+                      <div class="text-muted small">No photo</div>
+                    {% endif %}
+                  </td>
+                  <td>{{ it.row.name }}</td>
+                  <td><span class="badge text-bg-dark">{{ it.row.size }}</span></td>
+                  <td>฿{{ '%.2f'|format(it.row.price) }}</td>
+                  <td>
+                    <input type="number" name="qty_{{ it.row.id }}" min="1"
+                           max="{{ it.row.quantity }}"
+                           value="{{ it.qty }}" class="form-control form-control-sm" style="width:90px">
+                    <div class="form-text">In stock: {{ it.row.quantity }}</div>
+                  </td>
+                  <td>฿{{ '%.2f'|format(it.subtotal) }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr>
+                <th colspan="6" class="text-end">Total</th>
+                <th>฿{{ '%.2f'|format(total) }}</th>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary" type="submit">Update Quantities</button>
+          <form method="post" action="{{ url_for('withdraw_clear') }}">
+            <button class="btn btn-outline-warning" formaction="{{ url_for('withdraw_clear') }}" formmethod="post" type="submit">Clear</button>
+          </form>
+          <form method="post" action="{{ url_for('withdraw_confirm') }}" onsubmit="return confirm('Confirm withdraw and deduct stock?');">
+            <button class="btn btn-primary" type="submit">Confirm Withdraw</button>
+          </form>
+          <a class="btn btn-link" href="{{ url_for('index') }}">Back to inventory</a>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</div>
+<div style="text-align: center;">
+    <img src="/static/QRCode/IMG_4779.JPG" alt="QR Code" style="width:300px;">
+</div>
+{% endblock %}

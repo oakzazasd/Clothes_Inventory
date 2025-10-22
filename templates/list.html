@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form class="row g-2 mb-3" method="get" action="{{ url_for('index') }}">
+      <div class="col-sm-8 col-md-10">
+        <input name="q" class="form-control" placeholder="Search by name or size…" value="{{ q or '' }}">
+      </div>
+      <div class="col-sm-4 col-md-2 d-grid">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+      </div>
+    </form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+    <thead class="table-light">
+  <tr>
+    <th style="width:70px;">No.</th>
+    <th style="width:70px;">ID</th>
+    <th style="width:90px;">Photo</th>
+    <th>Name</th>
+    <th style="width:140px;">Size</th>
+    <th style="width:140px;">Price</th>
+    <th style="width:140px;">Quantity</th>
+    <th style="width:210px;">Actions</th>
+  </tr>
+</thead>
+<tbody>
+  {% for it in items %}
+    <tr>
+      <td>{{ (page - 1) * per_page + loop.index }}</td>
+      <td>{{ it.id }}</td>
+      <td>
+        {% if it.photo %}
+          <img class="thumb" src="{{ url_for('static', filename='uploads/' ~ it.photo) }}" alt="photo">
+        {% else %}
+          <div class="text-muted small">No photo</div>
+        {% endif %}
+      </td>
+      <td>{{ it.name }}</td>
+      <td><span class="badge text-bg-dark">{{ it.size }}</span></td>
+      <td>฿{{ '%.2f'|format(it.price) }}</td>
+      <td>{{ it.quantity }}</td>
+      <td>
+        {% if session.get('user') %}
+          <div class="btn-row">
+            <a href="{{ url_for('edit', item_id=it.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+            <a href="{{ url_for('duplicate_item', item_id=it.id) }}" class="btn btn-warning btn-sm">Duplicate</a>
+            <form method="post" action="{{ url_for('delete', item_id=it.id) }}" onsubmit="return confirm('Delete this item?');">
+              <button class="btn btn-sm btn-outline-danger">Delete</button>
+            </form>
+            <form method="post" action="{{ url_for('withdraw_add', item_id=it.id) }}" class="d-flex align-items-center gap-1">
+              <input type="number" name="qty" min="1" value="1" class="form-control form-control-sm" style="width:70px">
+              <button class="btn btn-sm btn-outline-primary" type="submit">Withdraw</button>
+            </form>
+          </div>
+        {% else %}
+          <span class="text-muted small">Login to edit</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="8" class="text-center text-muted py-4">No items yet. Click “Add Item”.</td></tr>
+  {% endfor %}
+</tbody>
+      </table>
+      <nav>
+  <ul class="pagination justify-content-center">
+    <!-- Previous -->
+    {% if page > 1 %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('index', q=q, page=page-1) }}">Previous</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Previous</span></li>
+    {% endif %}
+
+    <!-- Page numbers -->
+    {% for p in range(1, total_pages + 1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="{{ url_for('index', q=q, page=p) }}">{{ p }}</a>
+      </li>
+    {% endfor %}
+
+    <!-- Next -->
+    {% if page < total_pages %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('index', q=q, page=page+1) }}">Next</a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">Next</span></li>
+    {% endif %}
+  </ul>
+</nav>
+    </div>
+  </div>
+</div>
+{% endblock %}

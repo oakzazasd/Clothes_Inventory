@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Activity Log</h5>
+
+    <form class="row g-2 mb-3" method="get" action="{{ url_for('view_logs') }}">
+      <div class="col-md-3">
+        <select name="action" class="form-select">
+          <option value="">All actions</option>
+          <option value="ADD" {{ 'selected' if action=='ADD' else '' }}>ADD</option>
+          <option value="WITHDRAW" {{ 'selected' if action=='WITHDRAW' else '' }}>WITHDRAW</option>
+        </select>
+      </div>
+      <div class="col-md-7">
+        <input name="q" class="form-control" placeholder="Search name/user/size…" value="{{ q or '' }}">
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn btn-outline-secondary" type="submit">Filter</button>
+      </div>
+    </form>
+
+    <div class="mb-3">
+      <div class="small text-muted">
+        Added Qty: <strong>{{ totals.added_qty or 0 }}</strong> |
+        Withdrawn Qty: <strong>{{ totals.withdrawn_qty or 0 }}</strong> |
+        Added Value: <strong>฿{{ '%.2f'|format(totals.added_value or 0) }}</strong> |
+        Withdrawn Value: <strong>฿{{ '%.2f'|format(totals.withdrawn_value or 0) }}</strong>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-light">
+          <tr>
+            <th style="width:90px;">#</th>
+            <th style="width:140px;">Time</th>
+            <th style="width:120px;">User</th>
+            <th style="width:110px;">Action</th>
+            <th style="width:80px;">Item ID</th>
+            <th>Name</th>
+            <th style="width:90px;">Size</th>
+            <th style="width:110px;">Price</th>
+            <th style="width:120px;">Qty</th>
+            <th style="width:120px;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if logs %}
+            {% for r in logs %}
+              <tr>
+                <td>{{ r.id }}</td>
+                <td>{{ r.created_at }}</td>
+                <td>{{ r.user or '-' }}</td>
+                <td>
+                  <span class="badge {{ 'text-bg-success' if r.action=='ADD' else 'text-bg-danger' }}">{{ r.action }}</span>
+                </td>
+                <td>{{ r.item_id }}</td>
+                <td>{{ r.name }}</td>
+                <td>{{ r.size }}</td>
+                <td>฿{{ '%.2f'|format(r.price) }}</td>
+                <td>{{ r.quantity }}</td>
+                <td>฿{{ '%.2f'|format(r.subtotal) }}</td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr><td colspan="10" class="text-center text-muted py-4">No log entries.</td></tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
